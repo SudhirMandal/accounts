@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  configserver:
+    image: sudhir/configserver:latest
+    mem_limit: 700m
+    ports:
+      - "8071:8071"
+    networks:
+      - sudhir-networks
+
+  accounts:
+    image: sudhir/accounts
+    mem_limit: 700m
+    ports:
+      - "8080:8080"
+    networks:
+      - sudhir-networks
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 20s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configerserver:http://configserver:8071/
+
+  loans:
+    image: sudhir/loans
+    mem_limit: 700m
+    ports:
+      - "8081:8081"
+    networks:
+      - sudhir-networks
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 20s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configerserver:http://configserver:8071/
+
+  cards:
+    image: sudhir/cards
+    mem_limit: 700m
+    ports:
+      - "8083:8083"
+    networks:
+      - sudhir-networks
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 20s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configerserver:http://configserver:8071/
+
+networks:
+  sudhir-networks:
